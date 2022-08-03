@@ -7,7 +7,7 @@ This plugin is highly experimental and subject to frequent breaking changes.
 This plugin should be installed directly from GitHub, for now:
 
 ```shell
-npm install hirasso/swup-fragment-plugin
+npm install hirasso/swup-fragment-plugin --save
 ```
 
 ## Usage
