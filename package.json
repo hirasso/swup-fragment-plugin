@@ -16,7 +16,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/hirasso/fragment-plugin.git"
+    "url": "https://github.com/hirasso/swup-fragment-plugin.git"
   },
   "devDependencies": {
     "@swup/prettier-config": "^1.0.0",
