@@ -1296,7 +1296,7 @@ module.exports = _index2.default; // this is here for webpack to expose SwupPlug
 
 
 Object.defineProperty(exports, "__esModule", {
-  value: true
+	value: true
 });
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
@@ -1320,170 +1320,169 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var SwupFragmentPlugin = function (_Plugin) {
-  _inherits(SwupFragmentPlugin, _Plugin);
+	_inherits(SwupFragmentPlugin, _Plugin);
 
-  function SwupFragmentPlugin(options) {
-    _classCallCheck(this, SwupFragmentPlugin);
+	function SwupFragmentPlugin(options) {
+		_classCallCheck(this, SwupFragmentPlugin);
 
-    var _this = _possibleConstructorReturn(this, (SwupFragmentPlugin.__proto__ || Object.getPrototypeOf(SwupFragmentPlugin)).call(this));
+		var _this = _possibleConstructorReturn(this, (SwupFragmentPlugin.__proto__ || Object.getPrototypeOf(SwupFragmentPlugin)).call(this));
 
-    _this.name = 'SwupFragmentPlugin';
+		_this.name = 'SwupFragmentPlugin';
 
-    _this.clickLink = function (e) {
-      var skipTransition = e.target.closest('a').matches('[' + _this.options.skipTransitionAttribute + ']');
-      if (skipTransition) {
-        document.documentElement.classList.add('skip-transition');
-        _this.swup.skipTransition = true;
-      }
-    };
+		_this.clickLink = function (e) {
+			var skipTransition = e.target.closest('a').matches('[' + _this.options.skipTransitionAttribute + ']');
+			if (skipTransition) {
+				document.documentElement.classList.add('skip-transition');
+				_this.swup.skipTransition = true;
+			}
+		};
 
-    _this.transitionEnd = function () {
-      document.documentElement.classList.remove('skip-transition');
-      _this.swup.skipTransition = false;
-      if (_this.resetScrollFunction != null) _this.swup.scrollTo = _this.resetScrollFunction;
-    };
+		_this.transitionEnd = function () {
+			document.documentElement.classList.remove('skip-transition');
+			_this.swup.skipTransition = false;
+			if (_this.resetScrollFunction != null) _this.swup.scrollTo = _this.resetScrollFunction;
+		};
 
-    _this.willReplaceContent = function () {
-      // store the original swup options so that we can restore them later
-      _this.originalSwupOptions = (0, _cloneDeep2.default)(_this.swup.options);
-      // initially set this to false, until we find some fragments in the response
-      _this.fragmentsReplaced = false;
-      // save the current cache entry
-      var currentCacheEntry = _this.swup.cache.getCurrentPage();
-      // save the current cache blocks so that they can be reset in 'contentReplaced'
-      _this.originalBlocks = currentCacheEntry.blocks;
-      // parse the html of the current cache entry
-      var doc = new DOMParser().parseFromString(currentCacheEntry.originalContent, "text/html");
-      // look for fragments in the parsed html
-      var fragments = doc.querySelectorAll('[' + _this.options.fragmentAttribute + '][id]');
+		_this.willReplaceContent = function () {
+			// store the original swup options so that we can restore them later
+			_this.originalSwupOptions = (0, _cloneDeep2.default)(_this.swup.options);
+			// initially set this to false, until we find some fragments in the response
+			_this.fragmentsReplaced = false;
+			// save the current cache entry
+			var currentCacheEntry = _this.swup.cache.getCurrentPage();
+			// save the current cache blocks so that they can be reset in 'contentReplaced'
+			_this.originalBlocks = currentCacheEntry.blocks;
+			// parse the html of the current cache entry
+			var doc = new DOMParser().parseFromString(currentCacheEntry.originalContent, 'text/html');
+			// look for fragments in the parsed html
+			var fragments = doc.querySelectorAll('[' + _this.options.fragmentAttribute + '][id]');
 
-      // bail early if no fragments were found in the html
-      if (!fragments.length) return;
-      // save current [data-swup] elements
-      var originalSwupElements = document.querySelectorAll('[data-swup]');
+			// bail early if no fragments were found in the html
+			if (!fragments.length) return;
+			// save current [data-swup] elements
+			var originalSwupElements = document.querySelectorAll('[data-swup]');
 
-      var fragmentContainers = [];
-      var fragmentBlocks = [];
+			var fragmentContainers = [];
+			var fragmentBlocks = [];
 
-      /** 
-       * Cycle through all found fragments and look for 
-       * placeholders in the current DOM. If there are any, 
-       * create a block entry in the cache object and add the block's id to the options
-       */
-      fragments.forEach(function (el, index) {
+			/**
+    * Cycle through all found fragments and look for
+    * placeholders in the current DOM. If there are any,
+    * create a block entry in the cache object and add the block's id to the options
+    */
+			fragments.forEach(function (el, index) {
+				var placeholder = document.querySelector('[data-swup-fragment][id="' + el.id + '"]');
 
-        var placeholder = document.querySelector('[data-swup-fragment][id="' + el.id + '"]');
+				if (!placeholder) return;
+				// delete el.dataset.swupFragment
+				placeholder.dataset.swup = index;
+				fragmentContainers.push('#' + el.id);
+				fragmentBlocks.push(el.outerHTML);
+			});
 
-        if (!placeholder) return;
-        // delete el.dataset.swupFragment
-        placeholder.dataset.swup = index;
-        fragmentContainers.push('#' + el.id);
-        fragmentBlocks.push(el.outerHTML);
-      });
+			if (!fragmentContainers.length) return;
+			_this.fragmentsReplaced = true;
 
-      if (!fragmentContainers.length) return;
-      _this.fragmentsReplaced = true;
+			// remove [data-swup] from the original swup elements
+			originalSwupElements.forEach(function (el) {
+				el.dataset.restoreSwup = el.dataset.swup;
+				delete el.dataset.swup;
+			});
 
-      // remove [data-swup] from the original swup elements
-      originalSwupElements.forEach(function (el) {
-        el.dataset.restoreSwup = el.dataset.swup;
-        delete el.dataset.swup;
-      });
+			// apply the fragment blocks to the cache entry
+			currentCacheEntry.blocks = fragmentBlocks;
+			// update the cache
+			_this.swup.cache.cacheUrl(currentCacheEntry);
 
-      // apply the fragment blocks to the cache entry
-      currentCacheEntry.blocks = fragmentBlocks;
-      // update the cache
-      _this.swup.cache.cacheUrl(currentCacheEntry);
+			// apply the updated swup containers option
+			_this.swup.options.containers = fragmentContainers;
 
-      // apply the updated swup containers option
-      _this.swup.options.containers = fragmentContainers;
+			var scrollPlugin = _this.swup.findPlugin('ScrollPlugin');
+			if (scrollPlugin != null) {
+				_this.resetScrollFunction = _this.swup.scrollTo;
+				_this.swup.scrollTo = function () {};
+			}
+		};
 
-      var scrollPlugin = _this.swup.findPlugin('ScrollPlugin');
-      if (scrollPlugin != null) {
-        _this.resetScrollFunction = _this.swup.scrollTo;
-        _this.swup.scrollTo = function () {};
-      }
-    };
+		_this.contentReplaced = function (popstate) {
+			// bail early if no fragments were replaced
+			if (!_this.fragmentsReplaced) return;
 
-    _this.contentReplaced = function (popstate) {
+			// reset the swup options to the original
+			_this.swup.options.containers = _this.originalSwupOptions.containers;
+			// reset the cache with the original blocks
+			var cacheEntry = _this.swup.cache.getCurrentPage();
+			cacheEntry.blocks = _this.originalBlocks;
+			_this.swup.cache.cacheUrl(cacheEntry);
+			// restore [data-swup] attributes
+			document.querySelectorAll('[data-restore-swup]').forEach(function (el) {
+				el.setAttribute('data-swup', el.getAttribute('data-restore-swup'));
+				el.removeAttribute('data-restore-swup');
+				// el.dataset.swup = el.dataset.restoreSwup
+				// delete el.dataset.restoreSwup
+			});
 
-      // bail early if no fragments were replaced
-      if (!_this.fragmentsReplaced) return;
+			_this.swup.triggerEvent('fragmentReplaced', popstate);
+		};
 
-      // reset the swup options to the original
-      _this.swup.options.containers = _this.originalSwupOptions.containers;
-      // reset the cache with the original blocks
-      var cacheEntry = _this.swup.cache.getCurrentPage();
-      cacheEntry.blocks = _this.originalBlocks;
-      _this.swup.cache.cacheUrl(cacheEntry);
-      // restore [data-swup] attributes
-      document.querySelectorAll('[data-restore-swup]').forEach(function (el) {
-        el.setAttribute('data-swup', el.getAttribute('data-restore-swup'));
-        el.removeAttribute('data-restore-swup');
-        // el.dataset.swup = el.dataset.restoreSwup
-        // delete el.dataset.restoreSwup
-      });
+		var defaultOptions = {
+			fragmentAttribute: 'data-swup-fragment',
+			skipTransitionAttribute: 'data-swup-skip-transition'
+		};
 
-      _this.swup.triggerEvent('fragmentReplaced', popstate);
-    };
+		_this.options = _extends({}, defaultOptions, options);
+		return _this;
+	}
 
-    var defaultOptions = {
-      fragmentAttribute: 'data-swup-fragment',
-      skipTransitionAttribute: 'data-swup-skip-transition'
-    };
+	_createClass(SwupFragmentPlugin, [{
+		key: 'mount',
+		value: function mount() {
+			// create an entry in swups _handlers object,
+			// so that we can fire a 'fragmentsReplaced' event later
+			this.swup._handlers.fragmentReplaced = [];
 
-    _this.options = _extends({}, defaultOptions, options);
-    return _this;
-  }
+			this.swup.on('clickLink', this.clickLink);
+			this.swup.on('transitionEnd', this.transitionEnd);
+			this.swup.on('willReplaceContent', this.willReplaceContent);
+			this.swup.on('contentReplaced', this.contentReplaced);
+		}
+	}, {
+		key: 'unmount',
+		value: function unmount() {
+			this.swup.off('clickLink', this.clickLink);
+			this.swup.off('transitionEnd', this.transitionEnd);
+			this.swup.off('willReplaceContent', this.willReplaceContent);
+			this.swup.off('contentReplaced', this.contentReplaced);
+		}
 
-  _createClass(SwupFragmentPlugin, [{
-    key: 'mount',
-    value: function mount() {
-      // create an entry in swups _handlers object,
-      // so that we can fire a 'fragmentsReplaced' event later
-      this.swup._handlers.fragmentReplaced = [];
-
-      this.swup.on('clickLink', this.clickLink);
-      this.swup.on('transitionEnd', this.transitionEnd);
-      this.swup.on('willReplaceContent', this.willReplaceContent);
-      this.swup.on('contentReplaced', this.contentReplaced);
-    }
-  }, {
-    key: 'unmount',
-    value: function unmount() {
-
-      this.swup.off('willReplaceContent', this.willReplaceContent);
-      this.swup.off('contentReplaced', this.contentReplaced);
-    }
-
-    /**
-     * Adds a class to the html to be able to skip some transitions
-     * @param {clickEvent} e 
-     * @returns 
-     */
-
-
-    /**
-     * Removes the class for skipping transitions after each transition
-     */
+		/**
+   * Adds a class to the html to be able to skip some transitions
+   * @param {clickEvent} e
+   * @returns
+   */
 
 
-    /**
-     * Look for matching data-swup-fragment elements in the response 
-     * and if there are matches, replace those instead of swups default containers.
-     * @returns void
-     */
+		/**
+   * Removes the class for skipping transitions after each transition
+   */
 
 
-    /**
-     * if we replaced fragments before rendering the page, 
-     * reset the state so that popstate will still work as expected
-     * @returns 
-     */
+		/**
+   * Look for matching data-swup-fragment elements in the response
+   * and if there are matches, replace those instead of swups default containers.
+   * @returns void
+   */
 
-  }]);
 
-  return SwupFragmentPlugin;
+		/**
+   * if we replaced fragments before rendering the page,
+   * reset the state so that popstate will still work as expected
+   * @returns
+   */
+
+	}]);
+
+	return SwupFragmentPlugin;
 }(_plugin2.default);
 
 exports.default = SwupFragmentPlugin;
