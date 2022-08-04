@@ -1,5 +1,4 @@
 import Plugin from '@swup/plugin';
-import cloneDeep from 'lodash/cloneDeep';
 
 export default class SwupFragmentPlugin extends Plugin {
 	name = 'SwupFragmentPlugin';
@@ -66,8 +65,8 @@ export default class SwupFragmentPlugin extends Plugin {
 	 * @returns void
 	 */
 	willReplaceContent = () => {
-		// store the original swup options so that we can restore them later
-		this.originalSwupOptions = cloneDeep(this.swup.options);
+		// store the original swup containers so that we can restore them later
+		this.originalSwupContainers = this.swup.options.containers;
 		// initially set this to false, until we find some fragments in the response
 		this.fragmentsReplaced = false;
 		// save the current cache entry
@@ -134,9 +133,9 @@ export default class SwupFragmentPlugin extends Plugin {
 	contentReplaced = (popstate) => {
 		// bail early if no fragments were replaced
 		if (!this.fragmentsReplaced) return;
-
-		// reset the swup options to the original
-		this.swup.options.containers = this.originalSwupOptions.containers;
+    
+		// restore the original swup containers
+		this.swup.options.containers = this.originalSwupContainers;
 		// reset the cache with the original blocks
 		const cacheEntry = this.swup.cache.getCurrentPage();
 		cacheEntry.blocks = this.originalBlocks;
