@@ -24,9 +24,9 @@ const swup = new Swup({
 });
 ```
 
-If both the current page as well as the requested page contains an element `[data-swup-fragment]` with an `[id]`, only this element will be swapped by swup.
+If both the current page as well as the requested page contains elements with the attribute `[data-swup-fragment]` and a matching `[id]`, only these elements will be swapped by swup. 
 
-To prevent transitions on links pointing towards URLs that contain a fragment, these links need `[data-swup-skip-transition]` added.
+To prevent transitions on links pointing towards URLs that contain one (or more) fragment, these links need `[data-swup-skip-transition]` added.
 
 Then, in your css, you can "skip" the default transitions like this:
 
