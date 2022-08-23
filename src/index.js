@@ -65,8 +65,8 @@ export default class SwupFragmentPlugin extends Plugin {
 	 * @returns void
 	 */
 	willReplaceContent = () => {
-		// store the original swup containers so that we can restore them later
-		this.originalSwupContainers = this.swup.options.containers;
+		// clone and store the original swup containers so that we can restore them later
+		this.originalSwupContainers = [...this.swup.options.containers];
 		// initially set this to false, until we find some fragments in the response
 		this.fragmentsReplaced = false;
 		// save the current cache entry
