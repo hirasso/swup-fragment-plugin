@@ -71,8 +71,8 @@ export default class SwupFragmentPlugin extends Plugin {
 		this.fragmentsReplaced = false;
 		// save the current cache entry
 		const currentCacheEntry = this.swup.cache.getCurrentPage();
-		// save the current cache blocks so that they can be reset in 'contentReplaced'
-		this.originalBlocks = currentCacheEntry.blocks;
+		// clone and store the current cache blocks so that they can be reset in 'contentReplaced'
+		this.originalBlocks = [...currentCacheEntry.blocks];
 		// parse the html of the current cache entry
 		const doc = new DOMParser().parseFromString(currentCacheEntry.originalContent, 'text/html');
 		// look for fragments in the parsed html
@@ -111,7 +111,7 @@ export default class SwupFragmentPlugin extends Plugin {
 		});
 
 		// apply the fragment blocks to the cache entry
-		currentCacheEntry.blocks = fragmentBlocks;
+		currentCacheEntry.blocks = [...fragmentBlocks];
 		// update the cache
 		this.swup.cache.cacheUrl(currentCacheEntry);
 
