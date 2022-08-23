@@ -1,7 +1,9 @@
 # Swup Fragment Plugin
 
+[Check out a the demo here](https://test.rassohilber.com/swup-fragment-plugin/test/)
+
 ## ⛔️ Warning
-This plugin is highly experimental and subject to frequent breaking changes.
+This is a core-feature plugin for [Swup](https://github.com/swup/swup). It is highly experimental and subject to frequent breaking changes. Do not use in production!
 
 ## Installation
 This plugin should be installed directly from GitHub, for now:
